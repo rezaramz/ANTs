@@ -7,6 +7,8 @@ VERSION="0.0.0"
 # trap keyboard interrupt (control-c)
 trap control_c SIGINT
 
+ANTSPATH=~/ANTS/bin
+
 function setPath {
     cat <<SETPATH
 
@@ -581,7 +583,7 @@ TEMPLATES=()
 CURRENTIMAGESET=()
 XGRIDOPTS=""
 SCRIPTPREPEND=""
-WALLTIME="20:00:00"
+WALLTIME="2:00:00"
 MEMORY="8gb"
 # System specific queue options, eg "-q name" to submit to a specific queue
 # It can be set to an empty string if you do not need any special cluster options
@@ -1212,7 +1214,8 @@ if [[ "$RIGID" -eq 1 ]];
             jobIDs="$jobIDs $id"
         elif [[ $DOQSUB -eq 5 ]];
             then
-            id=`sbatch --job-name=antsrigid --export=ANTSPATH=$ANTSPATH $QSUBOPTS --nodes=1 --cpus-per-task=1 --time=${WALLTIME} --mem=${MEMORY} $qscript | rev | cut -f1 -d\ | rev`
+            echo ${MEMORY}
+            id=`sbatch --job-name=antsrigid --export=ANTSPATH=$ANTSPATH $QSUBOPTS --partition=compute1 --nodes=1 --cpus-per-task=40 --ntasks=1 --time=${WALLTIME} $qscript | rev | cut -f1 -d\ | rev`
             jobIDs="$jobIDs $id"
             sleep 0.5
         elif [[ $DOQSUB -eq 0 ]];
@@ -1592,7 +1595,7 @@ while [[ $i -lt ${ITERATIONLIMIT} ]];
             echo '#!/bin/sh' > $qscript
             echo -e "$SCRIPTPREPEND" >> $qscript
             echo -e "$exe" >> $qscript
-            id=`sbatch --job-name=antsdef${i} --export=ANTSPATH=$ANTSPATH --nodes=1 --cpus-per-task=1 --time=${WALLTIME} --mem=${MEMORY} $QSUBOPTS $qscript | rev | cut -f1 -d\ | rev`
+            id=`sbatch --job-name=antsdef${i} --export=ANTSPATH=$ANTSPATH --partition=compute1 --nodes=1 --cpus-per-task=40 --ntasks=1 --time=${WALLTIME} $QSUBOPTS $qscript | rev | cut -f1 -d\ | rev`
             jobIDs="$jobIDs $id"
             sleep 0.5
         elif [[ $DOQSUB -eq 0 ]];
